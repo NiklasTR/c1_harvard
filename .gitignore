@@ -1,0 +1,17 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+local_data/~$2015-2016 FNDDS At A Glance - Foods and Beverages.xlsx
+local_data/~$2015-2016 FNDDS At A Glance - Foods and Beverages (1).xlsx
+local_data/~$2015-2016 FNDDS At A Glance - FNDDS Nutrient Values.xlsx
+*.csv
+*.gz
+*.exe
+*.RData
+*.rdx
+*.xlsx
+*.rdb
+*.json
+*.bson
+*.xls

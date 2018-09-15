@@ -1,0 +1,98 @@
+---
+title: "Yelp_data"
+author: "Niklas Rindtorff"
+date: "9/15/2018"
+output: html_document
+---
+
+```{r}
+library(readr)
+library(jsonlite)
+library(tidyverse)
+```
+
+
+```{r}
+food_venues <- read_csv("datathon/food_venues.csv") %>% 
+  filter(state == "NY") %>% 
+  dplyr::select(-country, -state)
+```
+
+
+```{r}
+desc <- food_venues %>% 
+  group_by(categories) %>% 
+  summarise(n = n(),
+            n_na = sum(is.na(categories))) %>% 
+  mutate(descriptors= stringr::str_split(categories, pattern = ",")) %>% 
+  .$descriptors
+```
+
+```{r}
+tag_freq <- desc %>% 
+  unlist %>% 
+  #process strings
+  tolower() %>% 
+  str_trim() %>%
+  table() %>% 
+  as.data.frame() %>% 
+  as.tibble() %>% 
+  arrange(desc(Freq)) %>% 
+  magrittr::set_colnames(c("tag", "freq")) %>%
+  mutate(tag = factor(tag, levels = tag %>% unique()))
+
+tag_freq %>%  
+  ggplot(aes(tag, freq)) + geom_point() + 
+  scale_y_log10() + 
+  geom_hline(yintercept = 100)
+
+
+```
+
+```{r}
+tag_include <- tag_freq %>% 
+  filter(freq > 100) %>% 
+  .$tag
+```
+
+I identify the number of descriptors per location
+
+```{r}
+n_max <- lapply(desc,length) %>% unlist() %>% max()
+```
+
+I throw out 3000 restaurants which can not be described with the top 40 tags available.
+
+```{r}
+df <- food_venues %>% 
+  mutate(descriptors= stringr::str_split(categories, pattern = ",")) %>% 
+  mutate(descriptors = map(descriptors, ~ .x %>% tolower() %>% str_trim())) 
+
+food_venues_tagged <- df %>% 
+  unnest(descriptors) %>%
+  filter(descriptors %in% tag_include) %>%
+  #distinct(business_name, street_address) %>%
+  mutate(logical = TRUE) %>% 
+  #I remove duplicated tags for each institution
+  distinct() %>%
+  spread(descriptors, logical) %>% 
+  mutate(gr_alcohol = sum(pub, bar, `wine bar`),
+         gr_mediteranian = sum(european, spanish, french, greek, italian, mediterranean),
+         gr_meat = sum(barbecue, grill, steakhouse),
+         gr_asian = sum(asian, chinese, indian, japanese, sushi, thai),
+         gr_cafe = sum(cafe),
+         gr_fastfood = sum(`fast food`, pizza),
+         gr_meat_free = sum(`vegetarian friendly`, `vegan options`))
+```
+
+The number of unique venues
+
+```{r}
+food_venues_tagged %>% dim()
+food_venues %>% dim()
+```
+
+```{r}
+write_csv(food_venues_tagged, "food_venues_tagged.csv")
+```
+

@@ -1,0 +1,10 @@
+Heart disease: 633,842
+Cancer: 595,930
+Chronic lower respiratory diseases: 155,041
+Accidents (unintentional injuries): 146,571
+Stroke (cerebrovascular diseases): 140,323
+Alzheimer’s disease: 110,561
+Diabetes: 79,535
+Influenza and Pneumonia: 57,062
+Nephritis, nephrotic syndrome and nephrosis: 49,959
+Intentional self-harm (suicide): 44,193
